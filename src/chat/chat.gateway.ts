@@ -9,8 +9,18 @@ import { ChatService } from './chat.service';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
 import { Server } from 'socket.io';
+import {UseGuards} from "@nestjs/common";
+import {AuthGuard} from "@nestjs/passport";
+import {JwtAuthGuard} from "src/auth/jwt-auth.guard";
+import {JwtStrategy} from "src/auth/jwt.strategy";
+
 
 class Socket {
+  handshake: {
+    auth: {
+      token: string
+    }
+  }
 }
 
 @WebSocketGateway({cors: {
@@ -22,7 +32,10 @@ export class ChatGateway implements OnGatewayConnection {
 
 
   handleConnection(@ConnectedSocket() client: Socket): void {
-    console.log(`Client connected:`);
+    // console.log(client);
+    // const token = client.handshake.auth.token;
+    // console.log(token)
+    // const user = await this.jwtAuthGuard.validate({ token });
     // You can perform additional actions when a client connects
     // For example, you can send a welcome message to the connected client
     // client.emit('connection', 'Welcome to the chat!');

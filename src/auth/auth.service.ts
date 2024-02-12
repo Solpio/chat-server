@@ -1,4 +1,4 @@
-import {Injectable} from '@nestjs/common';
+import {HttpException, Injectable} from '@nestjs/common';
 import {UsersService} from "src/users/users.service";
 import * as bcrypt from 'bcrypt';
 import {JwtService} from '@nestjs/jwt';
@@ -9,22 +9,22 @@ export class AuthService {
   constructor(private userService: UsersService, private jwtService: JwtService) {
   }
 
-  async validateUser({username, password}: Omit<CreateUserDto, "role">) {
-    const user = await this.userService.findByUsername(username)
-    const isPasswordMatch = await bcrypt.compare(password, user.password)
-    if (isPasswordMatch) {
-      const token = await this.jwtService.signAsync({
-        username: user.username,
-        userId: user.id
-      })
-      return token
+    async validateUser({username, password}: Omit<CreateUserDto, "role">) {
+      const user = await this.userService.findByUsername(username)
+      if (!user) {
+        throw new HttpException('Wrong username or password', 500)
+      }
+      const isPasswordMatch = await bcrypt.compare(password, user.password)
+      if (!isPasswordMatch) {
+        throw new HttpException('Wrong username or password', 500)
+      }
+      console.log(isPasswordMatch)
+      if (isPasswordMatch) {
+        const token = await this.jwtService.signAsync({
+          username: user.username,
+          userId: user.id
+        })
+        return token
+      }
     }
   }
-
-  async updateToken(token: string) {
-    const decoded = await this.jwtService.verifyAsync<{userId: string, username: string}>(token)
-    console.log(decoded.userId, decoded.username)
-  }
-
-
-}

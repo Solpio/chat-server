@@ -1,4 +1,4 @@
-import {Injectable} from "@nestjs/common";
+import {HttpException, Injectable} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
 import {Model} from "mongoose";
 import {User, UsersDocument} from "src/users/users.schema";
@@ -16,8 +16,13 @@ export class UsersService {
   async createUser(dto: CreateUserDto) {
     const {password}: CreateUserDto = dto
     const hashedPassword = await bcrypt.hash(password, 10)
-    const user = await this.userModel.create({...dto, password: hashedPassword});
-    return user
+    try {
+      await this.userModel.create({...dto, password: hashedPassword});
+    } catch (error) {
+      throw new HttpException('Username must be unique', 500)
+    }
+
+    return true
   }
 
   async findByUsername(username: string) {

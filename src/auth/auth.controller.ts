@@ -18,4 +18,9 @@ export class AuthController {
   async testAuth() {
       console.log('test')
   }
+
+  @Post("/check")
+  async tokenChecker() {
+    return true
+  }
 }

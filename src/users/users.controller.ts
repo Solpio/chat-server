@@ -16,6 +16,6 @@ export class UsersController {
   @Public()
   @Post("/create")
   async signUp(@Body() body: Omit<CreateUserDto, "role">) {
-    await this.usersService.createUser({...body, role: [UsersRoleEnum.USER]})
+    return this.usersService.createUser({...body, role: [UsersRoleEnum.USER]})
   }
 }
